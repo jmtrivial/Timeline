@@ -4,12 +4,22 @@ import parsedatetime
 import svgwrite
 
 import datetime
+import calendar
 import json
 import os.path
 import sys
 import tkFont
 import Tkinter
 import locale
+import re
+
+def add_months(sourcedatetime, months):
+	month = sourcedatetime.month - 1 + months
+	year = sourcedatetime.year + month // 12
+	month = month % 12 + 1
+	day = min(sourcedatetime.day, calendar.monthrange(year,month)[1])
+	return sourcedatetime.replace(year, month, day)
+
 
 class Colors:
 	black = '#000000'
@@ -84,6 +94,11 @@ class Timeline:
 	        dt = datetime.datetime(*dt[:6])
 	    else:
 	    	dt = datetime.datetime(*dt[:6])
+	    	
+	    p = re.compile("\+[ ]*([0-9]*)[ ]*months")
+	    result = p.search(s)	    
+	    if result:
+	    	    dt = add_months(dt, int(result.group(1)))
 	    return dt, flag
 
 	def create_eras(self, y_era, y_axis, height):
