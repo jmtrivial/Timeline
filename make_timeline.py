@@ -237,10 +237,10 @@ class Timeline:
 			min_y = min(min_y, y)
 			#self.drawing.add(self.drawing.circle((left, y), stroke='red', stroke_width=2))		
 			path_data = 'M%i,%i L%i,%i L%i,%i' % (x, 0, x, y, x - self.callout_size[0], y)
-			self.g_axis.add(self.drawing.path(path_data, stroke=event_color, stroke_width=1, fill='none'))
+			self.g_axis.add(self.drawing.path(path_data, stroke=event_color, stroke_width=1 if event_bold == "normal" else 1.5, fill='none'))
 			self.g_axis.add(self.drawing.text(event, insert=(x - self.callout_size[0] - self.text_fudge[0], y + self.text_fudge[1]), stroke='none', fill=event_color, font_family='Helevetica', font_size='6pt', text_anchor='end', font_weight=event_bold))
 			self.add_axis_label(event_date, str(event_date[0]), tick=False, fill=Colors.black, prefix=prefix, weight=event_bold)
-			self.g_axis.add(self.drawing.circle((x, 0), r=4, stroke=event_color, stroke_width=1, fill='white'))
+			self.g_axis.add(self.drawing.circle((x, 0), r=4, stroke=event_color, stroke_width=1 if event_bold == "normal" else 1.5, fill='white'))
 			prev_x.append(x)
 			prev_level.append(k)
 		return min_y
