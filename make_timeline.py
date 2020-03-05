@@ -9,6 +9,7 @@ import os.path
 import sys
 import tkFont
 import Tkinter
+import locale
 
 class Colors:
 	black = '#000000'
@@ -250,6 +251,8 @@ if __name__ == '__main__':
 	if not os.path.isfile(filename):
 		print 'file %s not found' % filename
 		sys.exit(-1)
+	locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
+
 	timeline = Timeline(filename)
 	timeline.build()
 	print timeline.to_string().encode('utf-8')
