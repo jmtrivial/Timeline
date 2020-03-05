@@ -163,7 +163,7 @@ class Timeline:
 
 	def add_axis_label(self, dt, label, **kwargs):
 		if self.tick_format:
-			label = dt[0].strftime(self.tick_format)
+			label = kwargs.get('prefix', '') + dt[0].strftime(self.tick_format)
 		percent_width = (dt[0] - self.date0).total_seconds()/self.total_secs
 		if percent_width < 0 or percent_width > 1:
 			return
@@ -196,13 +196,14 @@ class Timeline:
 			sorted_dates.append(event_date)
 			if event_date not in inv_callouts:
 				inv_callouts[event_date] = []
-			inv_callouts[event_date].append((event, event_color))
+			prefix = "~ " if callout[1][0] == '~' else ""
+			inv_callouts[event_date].append((event, event_color, prefix))
 		sorted_dates.sort()		
 		# add callouts, one by one, making sure they don't overlap
 		prev_x = [float('-inf')]
 		prev_level = [-1]
 		for event_date in sorted_dates:
-			event, event_color = inv_callouts[event_date].pop()
+			event, event_color, prefix = inv_callouts[event_date].pop()
 			num_sec = (event_date[0] - self.date0).total_seconds()
 			percent_width = num_sec/self.total_secs
 			if percent_width < 0 or percent_width > 1:
@@ -221,7 +222,7 @@ class Timeline:
 			path_data = 'M%i,%i L%i,%i L%i,%i' % (x, 0, x, y, x - self.callout_size[0], y)
 			self.g_axis.add(self.drawing.path(path_data, stroke=event_color, stroke_width=1, fill='none'))
 			self.g_axis.add(self.drawing.text(event, insert=(x - self.callout_size[0] - self.text_fudge[0], y + self.text_fudge[1]), stroke='none', fill=event_color, font_family='Helevetica', font_size='6pt', text_anchor='end'))
-			self.add_axis_label(event_date, str(event_date[0]), tick=False, fill=Colors.black)
+			self.add_axis_label(event_date, str(event_date[0]), tick=False, fill=Colors.black, prefix=prefix)
 			self.g_axis.add(self.drawing.circle((x, 0), r=4, stroke=event_color, stroke_width=1, fill='white'))
 			prev_x.append(x)
 			prev_level.append(k)
