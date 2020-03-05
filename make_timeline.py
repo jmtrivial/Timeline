@@ -179,6 +179,7 @@ class Timeline:
 	def add_axis_label(self, dt, label, **kwargs):
 		if self.tick_format:
 			label = kwargs.get('prefix', '') + dt[0].strftime(self.tick_format)
+		weight = kwargs.get('weight', 'normal')
 		percent_width = (dt[0] - self.date0).total_seconds()/self.total_secs
 		if percent_width < 0 or percent_width > 1:
 			return
@@ -192,8 +193,8 @@ class Timeline:
 		# add label
 		fill = kwargs.get('fill', Colors.gray)
 		transform = "rotate(180, %i, 0)" % (x)
-		self.g_axis.add(self.drawing.text(label, insert=(x, -2*dy), stroke='none', fill=fill, font_family='Helevetica', font_size='6pt', text_anchor='end', writing_mode='tb', transform=transform))			
-		h = self.get_text_metrics('Helevetica', 6, label)[0] + 2*dy
+		self.g_axis.add(self.drawing.text(label, insert=(x, -2*dy), stroke='none', fill=fill, font_family='Helevetica', font_size='6pt', text_anchor='end', writing_mode='tb', transform=transform, font_weight=weight))			
+		h = self.get_text_metrics('Helevetica', 6, label, weight)[0] + 2*dy
 		self.max_label_height = max(self.max_label_height, h)
 
 	def create_callouts(self):
@@ -208,17 +209,18 @@ class Timeline:
 			event = callout[0]
 			event_date = self.datetime_from_string(callout[1])
 			event_color = callout[2] if len(callout) > 2 else Colors.black
+			event_bold = "bold" if len(callout) > 3 and callout[3] else "normal"
 			sorted_dates.append(event_date)
 			if event_date not in inv_callouts:
 				inv_callouts[event_date] = []
 			prefix = "~ " if callout[1][0] == '~' else ""
-			inv_callouts[event_date].append((event, event_color, prefix))
+			inv_callouts[event_date].append((event, event_color, prefix, event_bold))
 		sorted_dates.sort()		
 		# add callouts, one by one, making sure they don't overlap
 		prev_x = [float('-inf')]
 		prev_level = [-1]
 		for event_date in sorted_dates:
-			event, event_color, prefix = inv_callouts[event_date].pop()
+			event, event_color, prefix, event_bold = inv_callouts[event_date].pop()
 			num_sec = (event_date[0] - self.date0).total_seconds()
 			percent_width = num_sec/self.total_secs
 			if percent_width < 0 or percent_width > 1:
@@ -227,7 +229,7 @@ class Timeline:
 			# figure out what 'level" to make the callout on 
 			k = 0
 			i = len(prev_x) - 1
-			left = x - (self.get_text_metrics('Helevetica', 6, event)[0] + self.callout_size[0] + self.text_fudge[0])
+			left = x - (self.get_text_metrics('Helevetica', 6, event, event_bold)[0] + self.callout_size[0] + self.text_fudge[0])
 			while left < prev_x[i] and i >= 0:
 				k = max(k, prev_level[i] + 1)
 				i -= 1
@@ -236,20 +238,20 @@ class Timeline:
 			#self.drawing.add(self.drawing.circle((left, y), stroke='red', stroke_width=2))		
 			path_data = 'M%i,%i L%i,%i L%i,%i' % (x, 0, x, y, x - self.callout_size[0], y)
 			self.g_axis.add(self.drawing.path(path_data, stroke=event_color, stroke_width=1, fill='none'))
-			self.g_axis.add(self.drawing.text(event, insert=(x - self.callout_size[0] - self.text_fudge[0], y + self.text_fudge[1]), stroke='none', fill=event_color, font_family='Helevetica', font_size='6pt', text_anchor='end'))
-			self.add_axis_label(event_date, str(event_date[0]), tick=False, fill=Colors.black, prefix=prefix)
+			self.g_axis.add(self.drawing.text(event, insert=(x - self.callout_size[0] - self.text_fudge[0], y + self.text_fudge[1]), stroke='none', fill=event_color, font_family='Helevetica', font_size='6pt', text_anchor='end', font_weight=event_bold))
+			self.add_axis_label(event_date, str(event_date[0]), tick=False, fill=Colors.black, prefix=prefix, weight=event_bold)
 			self.g_axis.add(self.drawing.circle((x, 0), r=4, stroke=event_color, stroke_width=1, fill='white'))
 			prev_x.append(x)
 			prev_level.append(k)
 		return min_y
 
-	def get_text_metrics(self, family, size, text):
+	def get_text_metrics(self, family, size, text, weight="normal"):
 		font = None	
 		key = (family, size)
 		if key in self.fonts:
 			font = self.fonts[key]
 		else:
-			font = tkFont.Font(family=family, size=size)
+			font = tkFont.Font(family=family, size=size, weight=weight)
 			self.fonts[key] = font
 		assert font is not None
 		w, h = (font.measure(text), font.metrics("linespace"))
