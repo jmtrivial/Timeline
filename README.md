@@ -36,6 +36,8 @@ from JSON that looks like this:
 ### Data Format
 The input file is a JSON document that describes the start and end points of the timeline, tickmarks along the main axis, as well as callouts to specifc dates/times, and eras which visually mark areas along the axis.  Many of the fields are dates, which can be described in several common date formats (e.g., "3/14/15", "Nov 11, 2011", etc.) and may optionally also include a time of day (e.g. "3/14/15 9:26am").  (Date/time parsing is handled by the Python package [`parsedatetime`](https://pypi.python.org/pypi/parsedatetime/), which parses many formats.)
 
+The date can be prefixed by "~ " to introduce incertain dates, and can be postfixed by a string such as "+ 5 months" to add a given number of months to the given date.
+
 #### Required Fields
 
 The only required fields are `width`, `start`, and `end`.  All other fields are optional.  
@@ -61,6 +63,13 @@ or, with a custom callout color:
 ```JSON
 ["Ultimate Pi Day", "3/14/15 9:26am", "#CD3F85"]
 ```
+
+or, with a custom callout color and a custom callout weight:
+```JSON
+["Ultimate Pi Day", "3/14/15 9:26am", "#CD3F85", "bold"]
+```
+
+
 #### Eras
 
 Eras are described in the `eras` list.  Like the callout list, each entry in the eras list is itself a list with either three or four values.  The first three are required while the fourth is option; all values are strings.  The first value is a text description of the era (e.g., "Summer"), while the second and third values are the start and end date/times of the era, respectively (e.g., "6/21/15 12am", and "9/20/15 11:59pm").  The optional fourth value can specify a color for the era, either a color hexcode starting with a # or a SVG color alias. 
@@ -78,4 +87,4 @@ or, with a custom era color:
 You must have a python 2.7 installation and install the Python packages `parsedatetime` and `svgwrite`.
 
 ### Usage
-```./make_timeline.py in.json > out.svg```
+```./make_timeline.py in.json out.svg```
