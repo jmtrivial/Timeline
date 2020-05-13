@@ -25,6 +25,7 @@ class Colors:
 	black = '#000000'
 	gray = '#C0C0C0'
 
+
 class Timeline:
 	def __init__(self, filename):
 		# load timeline data
@@ -32,14 +33,7 @@ class Timeline:
 		with open(filename) as f:
 			s = f.read()
 		self.data = json.loads(s)
-		assert 'width' in self.data, 'width property must be set'
-		assert 'start' in self.data, 'start property must be set'
-		assert 'end' in self.data, 'end property must be set'
-		# create drawing
-		self.width = self.data['width']
-		self.drawing = svgwrite.Drawing()
-		self.drawing['width'] = self.width
-		self.g_axis = self.drawing.g()		
+
 		# figure out timeline boundaries
 		self.cal = parsedatetime.Calendar()
 		self.start_date = self.datetime_from_string(self.data['start'])
@@ -49,6 +43,34 @@ class Timeline:
 		self.date0 = self.start_date[0] - padding
 		self.date1 = self.end_date[0] + padding
 		self.total_secs = (self.date1 - self.date0).total_seconds()	
+
+	def datetime_from_string(self, s):
+		dt, flag = self.cal.parse(s)
+		if flag in (1, 2):
+			dt = datetime.datetime(*dt[:6])
+		else:
+			dt = datetime.datetime(*dt[:6])
+			
+		p = re.compile("\+[ ]*([0-9]*)[ ]*months?")
+		result = p.search(s)	    
+		if result:
+				dt = add_months(dt, int(result.group(1)))
+		return dt, flag
+		
+
+class TimelineSVG (Timeline):
+	def __init__(self, filename):
+		Timeline.__init__(self, filename)
+
+		assert 'width' in self.data, 'width property must be set'
+		assert 'start' in self.data, 'start property must be set'
+		assert 'end' in self.data, 'end property must be set'
+		# create drawing
+		self.width = self.data['width']
+		self.drawing = svgwrite.Drawing()
+		self.drawing['width'] = self.width
+		self.g_axis = self.drawing.g()		
+
 		# set up some params
 		self.callout_size = (10, 15, 10) # width, height, increment
 		self.text_fudge = (3, 1.5)
@@ -87,19 +109,6 @@ class Timeline:
 
 	def to_string(self):
 		return self.drawing.tostring()
-
-	def datetime_from_string(self, s):
-	    dt, flag = self.cal.parse(s)
-	    if flag in (1, 2):
-	        dt = datetime.datetime(*dt[:6])
-	    else:
-	    	dt = datetime.datetime(*dt[:6])
-	    	
-	    p = re.compile("\+[ ]*([0-9]*)[ ]*months")
-	    result = p.search(s)	    
-	    if result:
-	    	    dt = add_months(dt, int(result.group(1)))
-	    return dt, flag
 
 	def create_eras(self, y_era, y_axis, height):
 		if 'eras' not in self.data:
@@ -258,12 +267,13 @@ class Timeline:
 		return w, h
 
 def usage():
-	print 'Usage: ./make_timeline.py in.json > out.svg'
+	print 'Usage: ./make_timeline.py in.json out.svg'
 	sys.exit(-1)
 
 if __name__ == '__main__':
-	if len(sys.argv) < 2:
-		print 'missing input filename'
+	if len(sys.argv) < 3:
+		print 'Error in parameters.'
+		print ''
 		usage()
 	filename = sys.argv[1]
 	if not os.path.isfile(filename):
@@ -271,6 +281,9 @@ if __name__ == '__main__':
 		sys.exit(-1)
 	locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
 
-	timeline = Timeline(filename)
+	timeline = TimelineSVG(filename)
 	timeline.build()
-	print timeline.to_string().encode('utf-8')
+
+	outfilename = sys.argv[2]
+	with open(outfilename, 'w') as outfile:
+		outfile.write(timeline.to_string().encode('utf-8'))
