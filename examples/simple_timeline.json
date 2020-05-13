@@ -1,14 +1,16 @@
 {
 	"width" : 2000,
+	"summary" : "timeline example",
 	"start" : "Oct 8 2015",
 	"end" : "Nov 15 2015",	
 	"num_ticks" : 14,
 	"tick_format" : "%b %d, %Y - %I:%M%p",
 	"callouts" : [
-		["ABC easy as 123", "Oct 14, 2015 3pm + 1 month"],		
+		["ABC easy as 123", "3pm Oct 14, 2015 + 1 month"],		
 		["Midnight Event A", "12am Oct 10, 2015", "#DD0000"],
 		["Noon Event A", "12pm Oct 10, 2015"],		
 		["5pm Event A", "5pm Oct 10, 2015"],				
+		["5pm Event A bis", "5pm Oct 10, 2015"],				
 		["Something amazing happening", "Oct 11, 2015"],
 		["Awesome Event B", "Oct 12, 2015", "#DD0000", "bold"],
 		["C", "Oct 13, 2015"],
