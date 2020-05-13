@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import parsedatetime
-import svgwrite
 
 import datetime
 import calendar
@@ -60,6 +59,8 @@ class Timeline:
 
 class TimelineSVG (Timeline):
 	def __init__(self, filename):
+		import svgwrite
+
 		Timeline.__init__(self, filename)
 
 		assert 'width' in self.data, 'width property must be set'
