@@ -1,5 +1,5 @@
 # Timeline
-A tool for creating SVG timelines from JSON.  
+A tool for creating SVG timelines and ICAL events from JSON.
 
 ### Example
 
