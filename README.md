@@ -5,7 +5,7 @@ A tool for creating SVG timelines and ICAL events from JSON.
 
 You will be able to create timelines that look like this:
 
-![simple timeline example](http://jasonreisman.github.io/timeline/simple_timeline.png)
+![simple timeline example](https://raw.githubusercontent.com/jmtrivial/Timeline/master/examples/out.png)
 
 from JSON that looks like this:
 
